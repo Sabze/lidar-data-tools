@@ -1,6 +1,6 @@
 # lidar-data-tools
 
-##Installation and set-up
+## Installation and set-up
 
 It is highly recommended to use a virtual environment. 
 
