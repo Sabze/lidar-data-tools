@@ -67,7 +67,7 @@ if __name__ == "__main__":
     default_cfg_file = os.path.join(head, CONFIG_DEFAULT)
     parser = argparse.ArgumentParser(description="Creates new labels based on the predictions and saves them in "
                                                  "the specified output directory. The points that were "
-                                                 "correctly classified  by the predictions will be"
+                                                 "correctly classified by the predictions will be"
                                                  " labeled as \'Unlabeled\' (no color), "
                                                  "while the incorrectly classified points will get labeled "
                                                  "as \'Outlier\' (red).")

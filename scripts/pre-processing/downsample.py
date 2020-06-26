@@ -78,7 +78,7 @@ def downsample_files(laserscan_dict: dict, output: str, overwrite: bool, sequent
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Downsample vertically the SemanticKITTI data")
+    parser = argparse.ArgumentParser(description="Vertically downsample the SemanticKITTI data.")
     parser.add_argument(
       '--dataset', '-d',
       type=str,

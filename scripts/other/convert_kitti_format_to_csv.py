@@ -74,7 +74,7 @@ def convert_kitti(file_dict: dict, output: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Converts velodyne and label files in"
-                                                 " the SemanticKITTI format to a CSV format.")
+                                                 " SemanticKITTI format to CSV format.")
     parser.add_argument(
       '--dataset', '-d',
       type=str,

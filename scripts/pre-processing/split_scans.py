@@ -116,7 +116,11 @@ def split_laserscan_files(laserscan_dict: dict, output: str, overwrite: bool, se
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Downsample vertically the SemanticKITTI data")
+    parser = argparse.ArgumentParser(description="Split the scans in half. The laserscans that depicts the front "
+                                                 "points are saved with the original filename. The filename of the"
+                                                 " laserscans that depicts the back points starts with 1. For example, "
+                                                 "the front of laserscan 000001.bin will be saved in 000001.bin and the "
+                                                 "back in 100001.bin.")
     parser.add_argument(
       '--dataset', '-d',
       type=str,

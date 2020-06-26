@@ -47,7 +47,7 @@ def calc_class_count(label_dict, wanted_sequences, label_name_map):
 if __name__ == "__main__":
     head, tail = os.path.split(os.path.abspath(__file__))
     default_cfg_file = os.path.join(head, CONFIG_DEFAULT)
-    parser = argparse.ArgumentParser(description="Calculates the frequencies for the different classes")
+    parser = argparse.ArgumentParser(description="Calculates the frequencies for the different classes (scan based).")
     parser.add_argument(
       '--dataset', '-d',
       type=str,
