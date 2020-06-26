@@ -146,3 +146,4 @@ if __name__ == "__main__":
     fpt.add_velodyne_files(file_dict, args.dataset)
     fpt.add_label_files(file_dict, args.dataset)
     scale_rem_files(file_dict, args.output, args.overwrite, scale_func, sequential=args.sequential)
+    fpt.copy_labeling_tool_files(args.dataset, args.output)
