@@ -1,6 +1,6 @@
 
 class SequentialFeedbackCounter:
-    def __init__(self, feedback_num:int):
+    def __init__(self, feedback_num: int):
         self.feedback_num = feedback_num
         self.counter = 0
         print("Processing...", end='', flush=True)

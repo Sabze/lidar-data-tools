@@ -42,16 +42,15 @@ SCALING_TYPES = {"scale": get_scaled_rem,
                  "stand": get_norm_stand_rem}
 
 
-
 def scale_laserscan(laserscan_file: str, label_file: str, scale_func):
     laserscan, laserscan_num = fpt.read_laserscan(laserscan_file, label_file)
     if any(laserscan.remissions > MAX_REMISSION):
         warnings.warn(f"Found a remission-value bigger than {MAX_REMISSION} in file {laserscan_file}", UserWarning)
     laserscan.remissions = scale_func(laserscan)
-    return (laserscan, laserscan_num)
+    return laserscan, laserscan_num
 
 
-def sequential_scale_rem_sequence(laserscan_files:list, label_files:list, output_path:str, scale_func, overwrite:bool):
+def sequential_scale_rem_sequence(laserscan_files: list, label_files: list, output_path: str, scale_func, overwrite: bool):
     fb_counter = SequentialFeedbackCounter(SEQUENTIAL_FEEDBACK)
     saved_files = 0
     start = time.time()
@@ -59,14 +58,14 @@ def sequential_scale_rem_sequence(laserscan_files:list, label_files:list, output
         fb_counter.count()
         new_laserscan, name = scale_laserscan(laserscan_file, label_file, scale_func)
         fpt.save_scan(new_laserscan, name, output_path, overwrite)
-        saved_files +=1
+        saved_files += 1
     end = time.time()
     proc_time = end - start
     return proc_time, saved_files
 
 
-def parallel_scale_rem_sequence(laserscan_files:list, label_files:list, output_path:str, scale_func, overwrite:bool,
-                                num_of_processes:int):
+def parallel_scale_rem_sequence(laserscan_files: list, label_files: list, output_path: str, scale_func, overwrite: bool,
+                                num_of_processes: int):
     saved_files = 0
     num_of_files = len(laserscan_files)
     start = time.time()
@@ -74,8 +73,8 @@ def parallel_scale_rem_sequence(laserscan_files:list, label_files:list, output_p
         pool = mp.Pool(num_of_processes)
         end = min(num_of_files, batch_num + BATCH_SIZE)
         new_laserscans = pool.starmap(scale_laserscan,
-                                       [(laserscan_file, label_file, scale_func) for (laserscan_file, label_file) in
-                                        zip(laserscan_files[batch_num:end], label_files[batch_num:end])])
+                                      [(laserscan_file, label_file, scale_func) for (laserscan_file, label_file) in
+                                       zip(laserscan_files[batch_num:end], label_files[batch_num:end])])
         for scan, name in new_laserscans:
             fpt.save_scan(scan, name, output_path, overwrite)
             saved_files += 1
@@ -87,7 +86,7 @@ def parallel_scale_rem_sequence(laserscan_files:list, label_files:list, output_p
     return proc_time, saved_files
 
 
-def scale_rem_files(laserscan_dict:dict, output:str, overwrite: bool, scale_func, sequential=False):
+def scale_rem_files(laserscan_dict: dict, output: str, overwrite: bool, scale_func, sequential=False):
     for seq, file_types in laserscan_dict.items():
         laserscan_files = file_types["laserscans"]
         label_files = file_types["labels"]
@@ -101,7 +100,6 @@ def scale_rem_files(laserscan_dict:dict, output:str, overwrite: bool, scale_func
             proc_time, num_saved_files = parallel_scale_rem_sequence(laserscan_files, label_files, output_path,
                                                                      scale_func, overwrite, num_of_processes)
         print(f"\nSaved {num_saved_files} scans, in {proc_time:.2f} seconds")
-
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from matplotlib import cm
 
+
 def get_spherical_coords(cart_coords: np.array):
     spherical_coords = np.zeros(cart_coords.shape)
     spherical_coords[:, 0] = np.linalg.norm(cart_coords, axis=1)  # radius [0, inf]
@@ -56,7 +57,6 @@ def print_range(values: np.array, name: str):
 def convert_frames_to_video(frame_path: str, video_path: str, fps: float):
     frame_array = []
     img_files = sorted([f for f in os.listdir(frame_path) if os.path.isfile(os.path.join(frame_path, f))])
-    size = None # initialize
     for img_file in img_files:
         filename = os.path.join(frame_path, img_file)
         img = cv2.imread(filename)

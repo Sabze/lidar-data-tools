@@ -15,7 +15,8 @@ BATCH_SIZE = 200
 FREE_PROCESSORS = 3
 SEQUENTIAL_FEEDBACK = 20
 
-def save_split_scans(scan1:LaserScan, scan2:LaserScan, name:str, output_path:str, overwrite=False):
+
+def save_split_scans(scan1: LaserScan, scan2: LaserScan, name: str, output_path: str, overwrite=False):
     num_saved_files = 0
     if name is not None:
         fpt.save_scan(scan1, name, output_path, overwrite)
@@ -29,7 +30,7 @@ def save_split_scans(scan1:LaserScan, scan2:LaserScan, name:str, output_path:str
     return num_saved_files
 
 
-def split_laserscan(laserscan_file:str, label_file:str):
+def split_laserscan(laserscan_file: str, label_file: str):
     laserscan, name = fpt.read_laserscan(laserscan_file, label_file)
     front_split_laserscan = lh.crop_horizontally(laserscan, -0.5 * np.pi)
     rotated_laserscan = lh.get_rotated_laserscan(laserscan, z_rot=np.pi)
@@ -37,8 +38,8 @@ def split_laserscan(laserscan_file:str, label_file:str):
     return (front_split_laserscan, back_split_laserscan, name)
 
 
-def parallel_split_scans(laserscan_files:list, label_files:list, output_path:str, overwrite:bool, batch_size:int,
-                           num_of_processes:int):
+def parallel_split_scans(laserscan_files: list, label_files: list, output_path: str, overwrite: bool, batch_size: int,
+                         num_of_processes: int):
     """ Process laserscan with proc_func and save the new laserscan in output_path
     Args:
         laserscan_files (list): List with the laserscans files to process.
@@ -46,6 +47,7 @@ def parallel_split_scans(laserscan_files:list, label_files:list, output_path:str
         output_path (str): Path of the output directory.
         overwrite (bool): If True, it will overwrite files at the output-path if they exist.
         num_of_processes (int): Number of processes to use.
+        batch_size (int): How many scans to process in parallel.
 
     Returns:
          proc_time (float): Time it took to process the laserscans.
@@ -71,7 +73,7 @@ def parallel_split_scans(laserscan_files:list, label_files:list, output_path:str
     return proc_time, saved_files
 
 
-def sequential_split_scans(laserscan_files:list, label_files:list, output_path:str, overwrite:bool):
+def sequential_split_scans(laserscan_files: list, label_files: list, output_path: str, overwrite: bool):
     """Process laserscan with proc_func and save the new laserscan in output_path
     Args:
         laserscan_files (list): List with the laserscans files to process.
@@ -96,7 +98,7 @@ def sequential_split_scans(laserscan_files:list, label_files:list, output_path:s
     return proc_time, saved_files
 
 
-def split_laserscan_files(laserscan_dict: dict, output:str, overwrite: bool, sequential=False):
+def split_laserscan_files(laserscan_dict: dict, output: str, overwrite: bool, sequential=False):
     for sequence, file_types in laserscan_dict.items():
         laserscan_files = file_types["laserscans"]
         label_files = file_types["labels"]

@@ -10,13 +10,13 @@ CONFIG_DEFAULT = "../../config/uav-custom.yaml"
 SPLITS = ["train", "valid", "test", "all"]
 
 
-def print_count(count_dict:dict, num_scans:int, label_mapping:dict):
+def print_count(count_dict: dict, num_scans: int, label_mapping: dict):
     for label_id, count in sorted(count_dict.items()):
         name = label_mapping.get(label_id, "Unknown")
         print(f"{name} ({label_id}): {count/num_scans:.7f} ({count})")
 
 
-def count_classes_seq(label_files):
+def count_classes_seq(label_files: list):
     fb_counter = SequentialFeedbackCounter(SEQUENTIAL_FEEDBACK)
     class_count = NumberDict()
     for label_file in label_files:
@@ -59,7 +59,7 @@ if __name__ == "__main__":
       '--data_cfg', '-dc',
       type=str,
       help='Path to the data configuration file. Defaults to %(default)s',
-      default= default_cfg_file,
+      default=default_cfg_file,
     )
 
     parser.add_argument(

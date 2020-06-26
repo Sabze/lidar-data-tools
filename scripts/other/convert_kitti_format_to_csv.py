@@ -27,23 +27,23 @@ def save_laserscan_matrix(lasescan_matrix, filename: str, output: str, overwrite
 
     # check extension is a laserscan
     laser_dir = os.path.join(output, OUTPUT_FOLDER)
-    laser_file = os.path.join(laser_dir, filename+ ".csv")
+    laser_file = os.path.join(laser_dir, filename + ".csv")
     if not os.path.isdir(laser_dir):
         os.makedirs(laser_dir)
     if not overwrite and (os.path.exists(laser_file)):
         warnings.warn(f"A file with the filename {filename} already exist in the output directory {output}, "
-                                   f"Aborting save...", UserWarning)
+                      f"Aborting save...", UserWarning)
     else:
         np.savetxt(laser_file, lasescan_matrix, delimiter=",")
 
 
-def get_laserscan_matrix(laserscan_file:str, label_file:str):
+def get_laserscan_matrix(laserscan_file: str, label_file: str):
     laser_filename = os.path.splitext(os.path.basename(laserscan_file))[0]
     label_filename = os.path.splitext(os.path.basename(label_file))[0]
     if laser_filename != label_filename:
         warnings.warn(UserWarning, f"The laser-file {laser_filename} and label-file {label_filename} are not "
                                    f"the same. Skipping these files...")
-        return (None, None)
+        return None, None
     laserscan = LaserScan()
     laserscan.open_scan(laserscan_file)
     laserscan.open_labels(label_file)
@@ -52,7 +52,7 @@ def get_laserscan_matrix(laserscan_file:str, label_file:str):
     return laserscan_matrix, laser_filename
 
 
-def convert_kitti(file_dict: dict, output:str):
+def convert_kitti(file_dict: dict, output: str):
     print_counter = 0
     for seq, files in file_dict.items():
         start = time.time()

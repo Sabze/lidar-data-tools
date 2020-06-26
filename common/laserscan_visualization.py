@@ -10,10 +10,11 @@ from .laserscan import LaserScan
 from . import laserscan_handler as lh
 
 NUMBER_COLOR_MAP = {0: [0, 0, 0], 1: [0, 0, 255], 2: [255, 150, 255], 3: [245, 230, 100],
-                   4: [250, 80, 100], 5: [50, 120, 255],
-                   6: [0, 60, 135], 7: [30, 30, 255], 20: [255, 0, 0]}
+                    4: [250, 80, 100], 5: [50, 120, 255],
+                    6: [0, 60, 135], 7: [30, 30, 255], 20: [255, 0, 0]}
 
-def get_bg_color(laserscan: LaserScan, color=(0,0,0)):
+
+def get_bg_color(laserscan: LaserScan, color=(0, 0, 0)):
     return np.zeros((laserscan.size(), 3)) + np.array(color)
 
 
@@ -76,7 +77,7 @@ def color_points_by_laser_num(laserscan: LaserScan, laser_nums: list, color=(0, 
     draw(laserscan, bg_color)
 
 
-def color_points(laserscan: LaserScan, point_inds: list, color:list, bg_colors=None):
+def color_points(laserscan: LaserScan, point_inds: list, color: list, bg_colors=None):
     if bg_colors is None:
         bg_colors = get_bg_color(laserscan)
     for point_ind in point_inds:
@@ -84,7 +85,7 @@ def color_points(laserscan: LaserScan, point_inds: list, color:list, bg_colors=N
     draw(laserscan, bg_colors)
 
 
-def plot_aszmuthal_angle(laserscan: LaserScan, num_points_to_plot=10000, overlap=1000):
+def plot_azimuthal_angle(laserscan: LaserScan, num_points_to_plot=10000, overlap=1000):
 
     def get_laser_edge_points(laser_start_point_inds: list, point_inds: list):
         rel_ind = [ind for (ind, val) in enumerate(laser_start_point_inds) if val in point_inds]
@@ -141,7 +142,7 @@ def color_angle_interval(laserscan: LaserScan, start_angle: float, end_angle: fl
     return
 
 
-def color_pos_interval(laserscan: LaserScan, pos: str, start_value: float, end_value: float, color=(1,0,0),
+def color_pos_interval(laserscan: LaserScan, pos: str, start_value: float, end_value: float, color=(1, 0, 0),
                        bg_color=None):
     """ Color the points that has pos-values in the interval [start_value, end_value]. pos can be e.g. x, y, range.
      This function should not be used to color angle intervals, instead use color_angle_interval. """
@@ -160,7 +161,7 @@ def get_cmap_labels(cm: dict):
     label_colors = []
     for (k, v) in cm.items():
         boundaries.append(k)
-        label_colors.append(tuple(np.array(v) / 255)[::-1]) # The colors are saved as bgr
+        label_colors.append(tuple(np.array(v) / 255)[::-1])  # The colors are saved as bgr
     real_bound = [bound + 0.5 for bound in boundaries]
     real_bound = [0] + real_bound[:-1]
     cmap = clr.ListedColormap(label_colors)
@@ -181,7 +182,7 @@ def plot_projection_positions(laserscan: LaserScan, aspect=12):
 
 def plot_spherical_proj(laserscan: LaserScan, cmap, norm, proj_shape=None, half_turn=True,
                         aspect='auto', save=False, filedir="imgs", name="", h_flip=False, v_flip=False,
-                        title=True, color_bar=True, format="png"):
+                        title=True, color_bar=True, img_format="png"):
     if proj_shape is not None:
         laserscan.set_projection_var(proj_shape[0], proj_shape[1])
     laserscan.do_range_projection(h_flip=h_flip, v_flip=v_flip, half_turn=half_turn)
@@ -193,27 +194,28 @@ def plot_spherical_proj(laserscan: LaserScan, cmap, norm, proj_shape=None, half_
     if save:
         if name == "":
             raise ValueError("No filename specified")
-        filename = os.path.join(filedir, f"{name}.{format}")
+        filename = os.path.join(filedir, f"{name}.{img_format}")
         if not os.path.isdir(filedir):
             os.makedirs(filedir)
         elif os.path.exists(filename):
             print(f"Overwriting existing file {filename}")
-        plt.savefig(filename, format=format, bbox_inches='tight')
+        plt.savefig(filename, format=img_format, bbox_inches='tight')
     plt.show()
 
 
-def plot_adjusted_spherical_proj(laserscan: LaserScan, min_allowed:float, max_allowed:float, cmap, norm, proj_shape=None, half_turn=True,
-                        aspect='auto', save=False, filedir="imgs", name="", h_flip=False, v_flip=False,
-                        title=True, color_bar=True, format="png"):
+def plot_adjusted_spherical_proj(laserscan: LaserScan, min_allowed: float, max_allowed: float, cmap, norm,
+                                 proj_shape=None, half_turn=True, aspect='auto', save=False,
+                                 filedir="imgs", name="", h_flip=False, v_flip=False,
+                                 title=True, color_bar=True, img_format="png"):
     thetas = lh.get_scan_values(laserscan, "theta")
     min_theta = np.min(thetas)
     max_theta = np.max(thetas)
     print(f"max theta: {max_theta:.3f}, min theta: {min_theta:.3f}")
     angle = np.max([np.min([abs(max_theta), max_allowed]), min_allowed])
-    laserscan.proj_fov_down = -angle* 180 / np.pi
+    laserscan.proj_fov_down = -angle * 180 / np.pi
     laserscan.proj_fov_up = angle * 180 / np.pi
     plot_spherical_proj(laserscan, cmap, norm, proj_shape, half_turn, aspect, save, filedir, name, h_flip, v_flip,
-                        title, color_bar, format)
+                        title, color_bar, img_format)
     return min_theta, max_theta
 
 
@@ -246,7 +248,7 @@ def plot_histogram_of_pos(laserscans: list, pos: str, bins=20, show_norm=False, 
     pos = pos.lower()
     data_array = lh.concatenate_scan_values(laserscans, pos)
     print(f"{len(laserscans)} scans, {len(data_array)} points")
-    plot_histogram(data_array, len(laserscans), name= f"{name}:{pos}", bins=bins, show_norm=show_norm,
+    plot_histogram(data_array, len(laserscans), name=f"{name}:{pos}", bins=bins, show_norm=show_norm,
                    save=save, filepath=filepath)
     return data_array
 

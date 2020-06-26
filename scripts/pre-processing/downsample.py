@@ -14,18 +14,18 @@ FREE_PROCESSORS = 3
 SEQUENTIAL_FEEDBACK = 20
 
 
-def downsample_file(laserscan_file:str, label_file:str):
+def downsample_file(laserscan_file: str, label_file: str):
     laserscan, laser_filename = fpt.read_laserscan(laserscan_file, label_file)
     laserscan.set_laser_info(expected_num_of_lasers=64)
     if len(laserscan.laser_info) != 64:
         print("*"*10 + f" {laserscan_file}: {len(laserscan.laser_info)}")
     dwn_vert_laserscan = lh.vertical_downsample(laserscan, num_desired_lasers=16)
     # To also crop the scan:
-    #dwn_laserscan = lh.crop_horizontally(dwn_vert_laserscan, -0.5 * np.pi)
+    # dwn_laserscan = lh.crop_horizontally(dwn_vert_laserscan, -0.5 * np.pi)
     return (dwn_vert_laserscan, laser_filename)
 
 
-def sequential_downsample_sequence(laserscan_files:list, label_files:list, output_path:str, overwrite:bool):
+def sequential_downsample_sequence(laserscan_files: list, label_files: list, output_path: str, overwrite: bool):
     fb_counter = SequentialFeedbackCounter(SEQUENTIAL_FEEDBACK)
     saved_files = 0
     start = time.time()
@@ -53,7 +53,7 @@ def parallel_downsample_sequence(laserscan_files, label_files, output_path, over
         for scan, name in dwns_laserscans:
             fpt.save_scan(scan, name, output_path, overwrite)
             saved_files += 1
-        print(".", end='', flush=True) # Process indicator
+        print(".", end='', flush=True)  # Process indicator
         pool.close()
         pool.join()
     end = time.time()
@@ -61,14 +61,14 @@ def parallel_downsample_sequence(laserscan_files, label_files, output_path, over
     return proc_time, saved_files
 
 
-def downsample_files(laserscan_dict: dict, output:str, overwrite: bool, sequential=False):
+def downsample_files(laserscan_dict: dict, output: str, overwrite: bool, sequential=False):
     for sequence, file_types in laserscan_dict.items():
         label_files = file_types["labels"]
         laser_files = file_types["laserscans"]
         output_path = os.path.join(*[output, SUB_FOLDER, sequence])
         if sequential:
             proc_time, num_saved_files = sequential_downsample_sequence(laser_files, label_files, output_path,
-                                                                                   overwrite)
+                                                                        overwrite)
         else:
             num_of_processes = max(1, mp.cpu_count() - FREE_PROCESSORS)
             print(f"Using {num_of_processes} processes, num of files: {len(laser_files)}, batch size: {BATCH_SIZE}")

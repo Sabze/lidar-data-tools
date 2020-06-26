@@ -11,9 +11,9 @@ FEEDBACK_COUNT = 50
 CONFIG_DEFAULT = "../../config/uav-custom.yaml"
 
 
-def view_pcd(pcd_list:list):
+def view_pcd(pcd_list: list):
     max_scans_to_view = list(range(1, len(pcd_list)))
-    scans_to_view =  int(input(f"Number of scans to view (1-{len(pcd_list)}): "))
+    scans_to_view = int(input(f"Number of scans to view (1-{len(pcd_list)}): "))
     while scans_to_view not in max_scans_to_view:
         scans_to_view = int(input(f"Number of scans to view (1-{len(pcd_list)}): "))
     print("To the change number of scans to view, press C")
@@ -24,7 +24,7 @@ def view_pcd(pcd_list:list):
         print(f"Showing scans {start} to {end}")
         batch = pcd_list[start:end]
         o3d.visualization.draw_geometries(batch)
-        counter +=1
+        counter += 1
         if counter == USER_CHECK_COUNT:
             scans_to_view = check_input(scans_to_view, max_scans_to_view)
             counter = 0
@@ -33,8 +33,7 @@ def view_pcd(pcd_list:list):
         start += scans_to_view
 
 
-
-def check_input(scans_to_view:int, max_scan_to_view:int):
+def check_input(scans_to_view: int, max_scan_to_view: list):
     stop_com = ["n", "no", "stop", "exit"]
     cont_com = ["y", "c", "yes"]
     next_step = None
@@ -52,7 +51,7 @@ def check_input(scans_to_view:int, max_scan_to_view:int):
             return scans_to_view
 
 
-def get_pcd_list(file_dict:dict, cm:dict):
+def get_pcd_list(file_dict: dict, cm: dict):
     print("Collecting laserscans")
     laserscans = []
     if len(file_dict) > 1:
@@ -88,7 +87,7 @@ if __name__ == "__main__":
       '--data_cfg', '-dc',
       type=str,
       help='Path to the data configuration file. Defaults to %(default)s',
-      default= default_cfg_file,
+      default=default_cfg_file,
     )
 
     args = parser.parse_args()

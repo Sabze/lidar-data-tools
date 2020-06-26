@@ -9,14 +9,14 @@ CONFIG_DEFAULT = "../../config/uav-custom.yaml"
 SPLITS = ["train", "valid", "test", "all"]
 
 
-def print_count(count_dict:dict):
+def print_count(count_dict: dict):
     print("Weight | Number of scans | %-scans with this weight | Normalized weight ")
     for weight, info in sorted(count_dict.items()):
         count, freq, norm = info
         print(f"{weight: <12} {count:<17}" + f"({freq:.5f})" + " " * 18 + f"{norm:.6f}")
 
 
-def count_weights_seq(label_files, label_learning_map, label_ignore_map, label_weights):
+def count_weights_seq(label_files: list, label_learning_map: dict, label_ignore_map: dict, label_weights: dict):
     fb_counter = SequentialFeedbackCounter(SEQUENTIAL_FEEDBACK)
     weight_count = {}
     for label_file in label_files:
@@ -70,7 +70,7 @@ if __name__ == "__main__":
       '--data_cfg', '-dc',
       type=str,
       help='Path to the data configuration file. Defaults to %(default)s',
-      default= default_cfg_file,
+      default=default_cfg_file,
     )
 
     parser.add_argument(

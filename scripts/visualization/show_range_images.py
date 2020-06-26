@@ -1,10 +1,10 @@
 import argparse
 import os
 
-
 from common import utilities as utilities
 from common import laserscan_visualization as lv
 from common import file_processing_tools as fpt
+
 
 CONFIG_DEFAULT = "../../config/uav-custom.yaml"
 
@@ -16,9 +16,10 @@ def show_range_images(seq_dir, scan_range, cmap, norm, fov_up, fov_down, size, i
 
     for laserscan in laserscans:
         lv.plot_spherical_proj(laserscan, cmap, norm, size, aspect=aspect, save=save_imgs, filedir=img_dir,
-                               title=title, name=laserscan.name, color_bar=False, half_turn= half_turn)
-        #lv.plot_projection_positions(new_laserscan, aspect=aspect)
+                               title=title, name=laserscan.name, color_bar=False, half_turn=half_turn)
+        # lv.plot_projection_positions(new_laserscan, aspect=aspect)
     return laserscans[0].name
+
 
 if __name__ == "__main__":
     head, tail = os.path.split(os.path.abspath(__file__))
@@ -41,7 +42,7 @@ if __name__ == "__main__":
       '--data_cfg', '-dc',
       type=str,
       help='Path to the data configuration file. Defaults to %(default)s.',
-      default= default_cfg_file,
+      default=default_cfg_file,
     )
 
     parser.add_argument(
@@ -101,7 +102,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        '--width','-w',
+        '--width', '-w',
         type=int,
         default=1024,
         help='The width of the range image. Defaults to %(default)s.'
@@ -140,7 +141,7 @@ if __name__ == "__main__":
     else:
         fov_up = 15
         fov_down = -15
-        name="uav"
+        name = "uav"
     cm = fpt.get_color_mapping(args.data_cfg)
     cmap, norm = lv.get_cmap_labels(cm)
     if (args.save_images or args.save_video) and args.output_path is None:

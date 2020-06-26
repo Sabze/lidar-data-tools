@@ -16,16 +16,15 @@ CONFIG_DEFAULT = "../../config/labels/uav-custom.yaml"
 #     return mapped_dict
 
 
-def print_freq(count_dict:dict, num_labels:int, label_mapping:dict):
+def print_freq(count_dict: dict, num_labels: int, label_mapping: dict):
     for label_id, count in sorted(count_dict.items()):
         name = label_mapping.get(label_id, "Unknown")
         print(f"{name} ({label_id}): {count/num_labels:.7f} ({count})")
 
 
-def print_data_cfg_style(count_dict:dict, num_labels:int, label_mapping:dict):
+def print_data_cfg_style(count_dict: dict, num_labels: int, label_mapping: dict):
     for label_id, name in label_mapping.items():
         print(f"{label_id}: {count_dict.get(label_id, 0) / num_labels}")
-
 
 
 def sequential_calc_freq_seq(label_files):
@@ -44,12 +43,12 @@ def sequential_calc_freq_seq(label_files):
     return freq_dict, total_num_labels, proc_time
 
 
-def calculate_frequencies(file_dict:dict, sequences, label_mapping:dict):
+def calculate_frequencies(file_dict: dict, sequences, label_mapping: dict):
     total_num_labels = 0
     all_class_count = NumberDict()
     for sequence, file_types in file_dict.items():
         label_files = file_types["labels"]
-        if sequences is None or int(sequence) in sequences :
+        if sequences is None or int(sequence) in sequences:
             print(f"\n" + "-"*15 + f"Analysing sequence \'{sequence}\' containing {len(label_files)} scans." + "-"*15)
             seq_class_count, num_labels, proc_time = sequential_calc_freq_seq(label_files)
             all_class_count.update(seq_class_count.number_dict)
@@ -87,7 +86,7 @@ if __name__ == "__main__":
       '--data_cfg', '-dc',
       type=str,
       help='Path to the data configuration file. Defaults to %(default)s',
-      default= default_cfg_file,
+      default=default_cfg_file,
     )
 
     args = parser.parse_args()

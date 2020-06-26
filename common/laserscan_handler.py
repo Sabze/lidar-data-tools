@@ -75,7 +75,7 @@ def print_ranges(laserscan: LaserScan):
     return
 
 
-def get_scan_values(scan:LaserScan, pos:str):
+def get_scan_values(scan: LaserScan, pos: str):
     if pos == "x":
         return scan.points[:, 0]
     elif pos == "y":
@@ -94,7 +94,7 @@ def get_scan_values(scan:LaserScan, pos:str):
         raise ValueError("Invalid pos-value")
 
 
-def concatenate_scan_values(laserscans: list, pos:str):
+def concatenate_scan_values(laserscans: list, pos: str):
     data_array = get_scan_values(laserscans[0], pos)
     for laserscan in laserscans[1:]:
         vals = get_scan_values(laserscan, pos)
@@ -102,7 +102,7 @@ def concatenate_scan_values(laserscans: list, pos:str):
     return data_array
 
 
-def get_remission_vals_for_label(laserscans: list, label:str, label_mapping:dict):
+def get_remission_vals_for_label(laserscans: list, label: str, label_mapping: dict):
     """ Get remission values for a specific label/class.
 
     Args:
@@ -116,15 +116,15 @@ def get_remission_vals_for_label(laserscans: list, label:str, label_mapping:dict
     label = label.lower()
     try:
         label_id = label_mapping[label]
-    except:
-        raise ValueError(f"{label} is not a valid label, please use one of {label_mapping.keys()}")
+    except KeyError:
+        raise KeyError(f"{label} is not a valid label, please use one of {label_mapping.keys()}")
     data_array = np.array([])
     for laserscan in laserscans:
         relevant_indices = np.argwhere(laserscan.labels == label_id).flatten()
         if any(relevant_indices):
             remission = np.take(laserscan.remissions, relevant_indices)
             data_array = np.concatenate([data_array, remission], axis=0)
-    if (len(data_array) == 0):
+    if len(data_array) == 0:
         warnings.warn(f"There were no points with label {label} in the scans ", UserWarning)
     return data_array
 

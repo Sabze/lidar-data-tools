@@ -88,7 +88,6 @@ class LaserScan:
         self.proj_mask = np.zeros((self.proj_H, self.proj_W),
                                   dtype=np.int32)  # [H,W] mask
 
-
     def size(self):
         """ Return the size of the point cloud. """
         return self.points.shape[0]
@@ -120,7 +119,6 @@ class LaserScan:
         points = scan[:, 0:3]  # get xyz
         remissions = scan[:, 3]  # get remission
         self.set_points(points, remissions)
-
 
     def set_points(self, points, remissions=None):
         """ Set scan attributes (instead of opening from file) """
@@ -228,7 +226,7 @@ class LaserScan:
             turn_info[current_laser] = {"num_of_points": counter, "start_index": start_index}
         return turn_info
 
-    def _ordered_post_process_turns(self, turn_info:dict, phi_coords: np.array, start_phi: float, accepted_noise: float,
+    def _ordered_post_process_turns(self, turn_info: dict, phi_coords: np.array, start_phi: float, accepted_noise: float,
                                     expected_num_of_turns: int, tries=3):
         """ Tries to find exactly the expected_num_of_turns by changing the accepted noice. Expects that the points
         are sorted by the azimuth angle.
@@ -247,7 +245,7 @@ class LaserScan:
              with the keys: "num_of_points", "start_index".
         """
 
-        if len(turn_info) == expected_num_of_turns: # Success, we found the right number of lasers.
+        if len(turn_info) == expected_num_of_turns:  # Success, we found the right number of lasers.
             num_of_points = sum([v["num_of_points"] for (k, v) in turn_info.items()])
             assert (num_of_points == self.size()), \
                 f"Expected {self.size()} number of points, got {num_of_points}"
@@ -271,8 +269,7 @@ class LaserScan:
                 warnings.warn(f"Perfect laser-match is not possible:\nMatching only {len(turn_info)} lasers")
             return turn_info
 
-
-    def sort_points(self, sort_values:np.array):
+    def sort_points(self, sort_values: np.array):
         """ Sorts the points, labels and remission
         Args:
             sort_values (np.array): The points, labels and remission are sorted based on the values in sort_values.
@@ -287,8 +284,7 @@ class LaserScan:
             self.labels = np.take(self.labels, order)
         return np.take(sort_values, order)
 
-
-    def _unordered_get_laserinfo(self, vert_values: np.array, angular_res: float, precision:float):
+    def _unordered_get_laserinfo(self, vert_values: np.array, angular_res: float, precision: float):
         """ Return a dictionary with information about the revolution of each laser (channel)."""
         # TODO: make sure this is correct
         vert_angles = self.sort_points(vert_values)
@@ -303,8 +299,7 @@ class LaserScan:
             laserinfo[laser_num] = {"start_index": start_ind, "num_of_points": num_point}
         return laserinfo
 
-
-    def set_laser_info(self, expected_num_of_lasers:int, start_phi=0, accepted_noise=15.0,
+    def set_laser_info(self, expected_num_of_lasers: int, start_phi=0, accepted_noise=15.0,
                        ordered=True, angular_res=0.035, precision=0.5):
         """Set laser_info, which contains information the laser channels and their points.
 
@@ -319,20 +314,19 @@ class LaserScan:
             precision (float):              How accurate the angular resolution actually is.
                                             Used if the points aren't ordered.
             """
-        self.laser_info = {} # Contains information the laser channels and their points.
+        self.laser_info = {}  # Contains information the laser channels and their points.
         spherical_coords = utilities.get_spherical_coords(self.points)
         if ordered:
             turn_info = self._ordered_get_turn_info(spherical_coords[:, 1], start_phi, acc_noise=accepted_noise)
             turn_info = self._ordered_post_process_turns(turn_info, spherical_coords[:, 1], start_phi, accepted_noise,
                                                          expected_num_of_lasers, tries=3)
         else:
-            #TODO: add post processing
+            # TODO: add post processing
             vert_values = spherical_coords[:, 2]
             turn_info = self._unordered_get_laserinfo(vert_values, angular_res, precision)
         self.laser_info = turn_info
         self.num_of_lasers = len(self.laser_info)
         return turn_info
-
 
     def do_range_projection(self, h_flip=False, v_flip=False, half_turn=True):
         """ Project a pointcloud into a spherical projection image.projection.
@@ -358,13 +352,13 @@ class LaserScan:
         # get projections in image coords
         proj_y = 1.0 - (pitch + abs(fov_down)) / fov  # in [0.0, 1.0]
         if half_turn:
-            proj_x = -yaw / np.pi + 0.5 # pi horizontal angle
+            proj_x = -yaw / np.pi + 0.5  # pi horizontal angle
         else:
             proj_x = 0.5 * (-yaw / np.pi + 1.0)  # in [0.0, 1.0] # Original (2pi horizontal angle)
 
         # Works for all start angles
-        #shifted_yaw = ((-yaw) - start_angle) % (2 * np.pi)
-        #proj_x = shifted_yaw / horizontal_fov
+        # shifted_yaw = ((-yaw) - start_angle) % (2 * np.pi)
+        # proj_x = shifted_yaw / horizontal_fov
 
         # scale to image size using angular resolution
         proj_x *= self.proj_W  # in [0.0, W]
