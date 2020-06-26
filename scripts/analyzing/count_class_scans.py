@@ -3,7 +3,7 @@ import os
 
 from common import file_processing_tools as fpt
 from common.script_tools import SequentialFeedbackCounter
-from common.number_dict import NumberDict
+from common.script_tools import NumberDict
 
 SEQUENTIAL_FEEDBACK = 200
 CONFIG_DEFAULT = "../../config/uav-custom.yaml"
@@ -52,7 +52,7 @@ if __name__ == "__main__":
       '--dataset', '-d',
       type=str,
       required=True,
-      help='Path to the semnaticKITTI dataset dir. No Default',
+      help='Path to the dataset dir. (in Kitti format). No Default',
     )
 
     parser.add_argument(
@@ -61,7 +61,6 @@ if __name__ == "__main__":
       help='Path to the data configuration file. Defaults to %(default)s',
       default= default_cfg_file,
     )
-
 
     parser.add_argument(
         '--split', '-s',

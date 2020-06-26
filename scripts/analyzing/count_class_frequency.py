@@ -3,7 +3,7 @@ import time
 import os
 from common import file_processing_tools as fpt
 from common.script_tools import SequentialFeedbackCounter
-from common.number_dict import NumberDict
+from common.script_tools import NumberDict
 
 SEQUENTIAL_FEEDBACK = 500
 SPLITS = ["train", "valid", "test", "all"]
