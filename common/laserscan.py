@@ -334,14 +334,12 @@ class LaserScan:
         return turn_info
 
 
-    def do_range_projection(self, height=None, width=None, h_flip=False, v_flip=False):
+    def do_range_projection(self, h_flip=False, v_flip=False, half_turn=True):
         """ Project a pointcloud into a spherical projection image.projection.
         Function takes no arguments because it can be also called externally
         if the value of the constructor was not set (in case you change your
         mind about wanting the projection)
     """
-        if (height is not None) and (width is not None):
-            self.set_projection_var(height, width)
         # laser parameters
         fov_up = self.proj_fov_up / 180.0 * np.pi  # field of view up in rad
         fov_down = self.proj_fov_down / 180.0 * np.pi  # field of view down in rad
@@ -359,8 +357,10 @@ class LaserScan:
         pitch = np.arcsin(scan_z / depth)
         # get projections in image coords
         proj_y = 1.0 - (pitch + abs(fov_down)) / fov  # in [0.0, 1.0]
-        proj_x = -yaw / np.pi + 0.5 # pi horizontal angle
-        # proj_x = 0.5 * (-yaw / np.pi + 1.0)  # in [0.0, 1.0] # Original (2pi horizontal angle)
+        if half_turn:
+            proj_x = -yaw / np.pi + 0.5 # pi horizontal angle
+        else:
+            proj_x = 0.5 * (-yaw / np.pi + 1.0)  # in [0.0, 1.0] # Original (2pi horizontal angle)
 
         # Works for all start angles
         #shifted_yaw = ((-yaw) - start_angle) % (2 * np.pi)
