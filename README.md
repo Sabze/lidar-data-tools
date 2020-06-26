@@ -1,4 +1,8 @@
-# lidar-data-tools
+# LiDAR Data Tools
+While working with the LiDAR-bonnetal framework to develop deep learning models for semantic 
+segmentation of UAV LiDAR data, some code was written to aid and speed up the work process. That code has been collected 
+into this repo. This repo can thus be viewed as a complement to the LiDAR-Bonnetal framework and contains scripts and 
+help-functions for pre-processing, visualizing, and analyzing LiDAR data and for evaluating model predictions. 
 
 ## Installation and set-up
 
