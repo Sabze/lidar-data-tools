@@ -1,3 +1,6 @@
+import os
+
+import cv2
 import numpy as np
 from matplotlib import cm
 
@@ -50,3 +53,22 @@ def print_range(values: np.array, name: str):
     return min_val, max_val
 
 
+def convert_frames_to_video(frame_path: str, video_path: str, fps: float):
+    frame_array = []
+    img_files = sorted([f for f in os.listdir(frame_path) if os.path.isfile(os.path.join(frame_path, f))])
+    size = None # initialize
+    for img_file in img_files:
+        filename = os.path.join(frame_path, img_file)
+        img = cv2.imread(filename)
+        height, width, layers = img.shape
+        frame_array.append(img)
+        size = (width, height)
+    if len(img_files) > 0:
+        print("Creating video...")
+        print(f"Video saved at {video_path}")
+        out = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
+        for i in range(len(frame_array)):
+            out.write(frame_array[i])
+        out.release()
+    else:
+        print("No images found")

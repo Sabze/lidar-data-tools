@@ -1,56 +1,15 @@
 from .laserscan import LaserScan
-import open3d as o3d
 import numpy as np
-import os
 from . import utilities
-import matplotlib.colors as clr
-import matplotlib.pyplot as plt
 import warnings
 import math
-import scipy.stats
 
 EXTENSIONS_LABEL = ['.label']
-
 REMISSION_NAMES = ["remission", "intensity", "rem", "int", "i"]
 RANGE_NAMES = ["r", "radius", "range"]
 THETA_NAMES = ["theta", "vertical", "ver"]
 PHI_NAMES = ["phi", "hor", "horizontal", "azimuth"]
 LASERCAN_FOLDER = "velodyne"
-
-
-def get_cmap_labels(cm:dict):
-    """Return a color map based on the label colors"""
-    boundaries = []
-    label_colors = []
-    for (k, v) in cm.items():
-        boundaries.append(k)
-        label_colors.append(tuple(np.array(v) / 255)[::-1]) # The colors are saved as bgr
-    real_bound = [bound + 0.5 for bound in boundaries]
-    real_bound = [0] + real_bound[:-1]
-    cmap = clr.ListedColormap(label_colors)
-    norm = clr.BoundaryNorm(real_bound, cmap.N, clip=True)
-    return cmap, norm
-
-
-def convert_laserscan_2_open3d(pointcloud: LaserScan, colors=None):
-    """Return an open3d point cloud given a semantickitti laserscan."""
-    pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(pointcloud.points)
-    if colors is not None:
-        set_colors_open3d(pcd, colors)
-    return pcd
-
-
-def convert_open3d_2_laserscan(pcd: 'open3d.open3d.geometry.PointCloud'):
-    """Return a semantickitti laserscan given an open3d point cloud."""
-    laserscan = LaserScan()
-    laserscan.set_points(np.asarray(pcd.points))
-    return laserscan
-
-
-def set_colors_open3d(pcd: 'open3d.open3d.geometry.PointCloud', colors: np.array):
-    """Set the color of the points in the point cloud, colors are a np array with RGB values (0-1)."""
-    pcd.colors = o3d.utility.Vector3dVector(colors)
 
 
 def crop_laserscan(laserscan: LaserScan, wanted_inds: list, name=""):
@@ -101,7 +60,7 @@ def print_ranges(laserscan: LaserScan):
     y = laserscan.points[:, 1]
     z = laserscan.points[:, 2]
     intensity = laserscan.remissions
-    spherical_coords = utilities.get_spherical_coords_sin(laserscan.points)
+    spherical_coords = utilities.get_spherical_coords(laserscan.points)
     r = spherical_coords[:, 0]
     phi = spherical_coords[:, 1]
     theta_sin = spherical_coords[:, 2]
@@ -116,33 +75,6 @@ def print_ranges(laserscan: LaserScan):
     return
 
 
-# Move to vizualizer?
-def draw_laserscans(laserscans: list):
-    """Draw the laserscans one by one. """
-    vis = o3d.visualization.VisualizerWithEditing()
-    vis.create_window()
-    color = np.array([1, 0, 0])
-    pcd_list = []
-    for laserscan in laserscans:
-        color = np.roll(color, 1)
-        print(laserscan)
-        colors = np.zeros((laserscan.size(), 3)) + color
-        # colors = np.array([[list(np.roll(color, 1))]*laserscan.size()])
-        pcd = o3d.geometry.PointCloud()
-        pcd.points = o3d.utility.Vector3dVector(laserscan.points)
-        pcd.colors = o3d.utility.Vector3dVector(colors)
-        pcd_list.append(pcd)
-
-        o3d.visualization.draw_geometries(pcd_list)
-        next = "unknown"
-        while next not in ['n', 'c', 's']:
-            next = input("Next (n), Clear (c) or Stop (s)?")
-        if next == 'c':
-            pcd_list = []
-        elif next == 's':
-            break
-
-# move to laserscan?
 def get_scan_values(scan:LaserScan, pos:str):
     if pos == "x":
         return scan.points[:, 0]
@@ -168,45 +100,6 @@ def concatenate_scan_values(laserscans: list, pos:str):
         vals = get_scan_values(laserscan, pos)
         data_array = np.concatenate([data_array, vals], axis=0)
     return data_array
-
-
-def plot_histogram_of_pos(laserscans: list, pos: str, bins=20, show_norm=False, name="", save=False, filepath=""):
-    """Plot the histogram of one of (x,y,z, range, remission, phi, theta) specified by 'pos', for the
-    laserscans in laserscans."""
-    pos = pos.lower()
-    data_array = concatenate_scan_values(laserscans, pos)
-    print(f"{len(laserscans)} scans, {len(data_array)} points")
-    plot_histogram(data_array, len(laserscans), name= f"{name}:{pos}", bins=bins, show_norm=show_norm,
-                   save=save, filepath=filepath)
-    return data_array
-
-
-def plot_histogram(data_array, num_scans, name="", bins=20, save=False, filepath="", show_norm=False):
-    """ Plot a histogram of data_array. """
-    data_mean = np.mean(data_array)
-    data_std = np.std(data_array)
-    print(f"Mean: {data_mean}, Std: {data_std} ")
-    print(f"Min: {np.min(data_array)}, Max: {np.max(data_array)}")
-    plt.figure()
-    n, bins, patches = plt.hist(data_array, bins=bins)
-    plt.title(f"{name}, {num_scans} scans, {len(data_array)} points")
-    if save:
-        filename = f"{name}:{num_scans}scans:{len(data_array):09}points.png"
-        filepath = os.path.join(filepath, filename)
-        plt.savefig(filepath, format="png")
-        print(f"Saved image {filepath}")
-    plt.show()
-    if show_norm:
-        # Plot the histogram of the normalized values.
-        plt.figure()
-        plt.title("Normal dist")
-        vals = ((data_array-data_mean)/data_std)
-        x = np.linspace(np.min(data_array), np.max(data_array), bins + 50)
-        y = scipy.stats.norm.pdf(x, data_mean, data_std)
-        plt.hist(vals, bins=bins, density=True)
-        plt.plot(x, y)
-        plt.show()
-    return data_array, n, bins, patches
 
 
 def get_remission_vals_for_label(laserscans: list, label:str, label_mapping:dict):

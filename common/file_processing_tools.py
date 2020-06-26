@@ -9,6 +9,7 @@ import warnings
 import time
 import numpy as np
 import multiprocessing as mp
+import shutil
 FREE_PROCESSORS = 3
 SUB_FOLDER = "sequences"
 LASER_FOLDER = "velodyne"
@@ -23,12 +24,14 @@ EXAMPLE_FORMAT = f".../dataset/{SUB_FOLDER}/XX/"
 PRED_PROB_SUFFIX = ".npy"
 
 # --- DICTIONARY KEYS ------
-PRED_PROB_NAME = "pred_prob"
+PRED_PROB_NAME = "pred_probs"
 LABEL_NAME = "labels"
 LASER_NAME = "laserscans"
 PREDICTION_NAME = "predictions"
+UNKNOWN_SEQ = "Unknown"
 
-
+#------ LABELING TOOL FILES -----
+LABELING_TOOL_FILES = ["calib.txt", "instances.txt", "poses.txt", "times.txt"]
 
 def get_example_format(folder_name:str, file_suffix):
     return f".../dataset/{SUB_FOLDER}/XX/{folder_name}/XXXXXX{file_suffix}"
@@ -61,7 +64,7 @@ def add_label_files(file_dict:dict, dataset_filepath: str):
     return
 
 
-def add_pred_prob_files(file_dict, dataset_filepath: str):
+def add_pred_prob_files(file_dict:dict, dataset_filepath: str):
     """ Add the pred prob files in dataset_filepath to the dictionary file_dict
     Args:
         dataset_filepath (str): The filepath to data in kitti-format.
@@ -73,7 +76,7 @@ def add_pred_prob_files(file_dict, dataset_filepath: str):
     return
 
 
-def get_prediction_files(dataset_filepath: str, file_dict = None):
+def add_prediction_files(file_dict:dict, dataset_filepath: str):
     """Add the prediction files in dataset_filepath to the dictionary file_dict.
     The format of file_dict is {sequence_num: {filetype1: [file_paths], filetype2: [file_paths]}}.
     Args:
@@ -108,7 +111,7 @@ def add_laserscan_files(file_dict:dict, dataset_filepath: str, name:str, folder_
         # Get files for one sequence
         sequence = os.path.basename(dataset_filepath)
         if sequence == "":
-            sequence = "Unknown"
+            sequence = UNKNOWN_SEQ
         if not sequence in file_dict:
             file_dict[sequence] = {}
         file_dict[sequence][name] = sorted(glob.glob(os.path.join(*[dataset_filepath, folder_name,
@@ -135,7 +138,6 @@ def read_label_file(label_filename:str):
     return labels
 
 
-# TODO: FIX!!
 def read_laserscan(laserscan_file, label_file=None):
     laser_filename = os.path.splitext(os.path.basename(laserscan_file))[0]
     laserscan = LaserScan()
@@ -161,11 +163,10 @@ def get_laserscan(dir: str, sequence_num: str, scan_num: int, name="", labels=Tr
     return laserscan
 
 
-def get_laserscans(dir: str, sequence_num: str, scan_nums: list, name="", labels=True, fov_up=3.0, fov_down=-25.0):
+def get_laserscans(dir: str, scan_nums: list, name="", labels=True, fov_up=3.0, fov_down=-25.0):
     """ Return the a list of laserscans.
     Args:
-        dir (str):          The directory of all the laserscans.
-        sequence_num (str): The name of the sequence.
+        dir (str):          The directory for the laserscans.
         scan_nums (list):   A list with the IDs/names of the wanted scans.
         name (str):         Common prefix of the name for all the loaded laserscans.
         labels (bool):      True if the labels should be loaded, false otherwise.
@@ -174,9 +175,14 @@ def get_laserscans(dir: str, sequence_num: str, scan_nums: list, name="", labels
 
     Returns:
         list of laserscans."""
+    sequence_num = os.path.basename(dir)
+    seq_dir = os.path.dirname(dir)
+    if sequence_num == "":
+        sequence_num = os.path.basename(dir[:-1])
+        seq_dir = os.path.dirname(dir[:-1])
     laserscans = []
     for scan_num in scan_nums:
-        laserscan = get_laserscan(dir, sequence_num, scan_num, name, labels=labels, fov_up=fov_up, fov_down=fov_down)
+        laserscan = get_laserscan(seq_dir, sequence_num, scan_num, name, labels=labels, fov_up=fov_up, fov_down=fov_down)
         laserscans.append(laserscan)
     return laserscans
 
@@ -193,6 +199,47 @@ def count_labels(labelfile:str):
     num_labels = labels.shape[0]
     labels, counts = np.unique(labels, return_counts=True)
     return labels, counts, num_labels
+
+
+def calc_entropy(pred_prob_file:str):
+    probs = np.load(pred_prob_file)
+    log_probs = np.log(probs)
+    entropy = -np.sum(np.multiply(probs, log_probs), axis=1)
+    if np.any(entropy > 1.5):
+        print(f"Bigger than 1.5: {np.max(entropy)}")
+    return entropy
+
+
+def get_weight(label_file:str, label_learning_map, label_ignore_map, label_weights):
+    label_types, nums, tot_labels = count_labels(label_file)
+    weight = 0
+    for label_type, num in zip(label_types, nums):
+        mapped_class = label_learning_map[label_type]
+        if not label_ignore_map[mapped_class]:
+            weight += num * 1 / label_weights[mapped_class]
+    weight /= tot_labels
+    return np.round(weight) ** 2
+
+
+def copy_labeling_tool_files(source_dir: str, destination_dir: str):
+    if not os.path.isdir(source_dir) or not os.path.isdir(destination_dir):
+        raise ValueError("The given dataset directory is not a directory.")
+    dst_sequences = sorted(os.listdir(os.path.join(destination_dir, SUB_FOLDER)))
+    src_sequences = os.listdir(source_dir)
+    has_several_sequences = SUB_FOLDER in src_sequences
+    for dst_sequence in dst_sequences:
+        if not has_several_sequences:
+            src_seq = source_dir
+        else:
+            src_seq = os.path.join(*[source_dir, SUB_FOLDER, dst_sequence])
+        for labeling_tool_file in LABELING_TOOL_FILES:
+            src_file = os.path.join(src_seq, labeling_tool_file)
+            if os.path.isfile(src_file):
+                dst_file = os.path.join(*[destination_dir, SUB_FOLDER, dst_sequence, labeling_tool_file])
+                shutil.copyfile(src_file, dst_file)
+            else:
+                warnings.warn(f"Labeling tool file {src_file} could not found "
+                              f"for sequence {dst_sequence}")
 
 
 # ----------------------------------- Functions for saving laserscan data-------------------------------------
@@ -355,6 +402,19 @@ def get_learning_mapping(label_config:str):
 def get_label_name_mapping(label_config:str):
     config_dict = read_label_config(label_config)
     return config_dict["labels"]
+
+
+def get_learning_content(label_config:str):
+    config_dict = read_label_config(label_config)
+    learning_content = {}
+    for label_id, learning_map in config_dict["learning_map"].items():
+        learning_content[learning_map] = learning_content.get(learning_map, 0) + config_dict["content"][label_id]
+    return learning_content
+
+
+def get_ignore_mapping(label_config:str):
+    config_dict = read_label_config(label_config)
+    return config_dict["learning_ignore"]
 
 
 def get_sequences(label_config:str, split:str):
