@@ -24,7 +24,7 @@ def show_range_images(seq_dir, scan_range, cmap, norm, fov_up, fov_down, size, i
 if __name__ == "__main__":
     head, tail = os.path.split(os.path.abspath(__file__))
     default_cfg_file = os.path.join(head, CONFIG_DEFAULT)
-    parser = argparse.ArgumentParser(description="Plot the range images.")
+    parser = argparse.ArgumentParser(description="Plot the range images one by one.")
     parser.add_argument(
       '--input_path', '-i',
       type=str,

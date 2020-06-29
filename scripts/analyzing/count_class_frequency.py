@@ -64,7 +64,7 @@ def calculate_frequencies(file_dict: dict, sequences, label_mapping: dict):
 if __name__ == "__main__":
     head, tail = os.path.split(os.path.abspath(__file__))
     default_cfg_file = os.path.join(head, CONFIG_DEFAULT)
-    parser = argparse.ArgumentParser(description="Calculates the frequencies for the different classes (point based).")
+    parser = argparse.ArgumentParser(description="Calculates the frequencies of the different classes (point based).")
     parser.add_argument(
       '--dataset', '-d',
       type=str,

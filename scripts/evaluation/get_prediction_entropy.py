@@ -57,7 +57,8 @@ def set_entropy_all(file_dict: dict, output: str, overwrite=True):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Copies the velodyne data and the label data to the specified "
                                                  "output dir and overwrites the remission channel of"
-                                                 " the velodyne data (in the output dir) with the entropy.")
+                                                 " the velodyne data (in the output dir.) with the entropy. It is "
+                                                 "recommended to view the entropy with the SemnaticKITTI labeling tool.")
     parser.add_argument(
         '--probabilities', '-p',
         type=str,

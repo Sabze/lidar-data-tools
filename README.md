@@ -4,6 +4,9 @@ segmentation of UAV LiDAR data, some code was written to aid and speed up the wo
 into this repo. This repo can thus be viewed as a complement to the LiDAR-Bonnetal framework and contains scripts and 
 help-functions for pre-processing, visualizing, and analyzing LiDAR data and for evaluating model predictions. 
 
+All the scripts can be found in `scripts/`, and all functionality can be found in `common/`. For information about a script 
+and its options, invoke it with the `--help` (`-h`) flag.
+
 ## Installation and set-up
 
 It is highly recommended to use a virtual environment. 
@@ -28,3 +31,5 @@ If you want to edit the files, instead run:
 ```sh
  pip3 install -e . 
 ```
+
+

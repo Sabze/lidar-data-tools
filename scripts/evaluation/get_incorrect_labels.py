@@ -70,7 +70,8 @@ if __name__ == "__main__":
                                                  "correctly classified by the predictions will be"
                                                  " labeled as \'Unlabeled\' (no color), "
                                                  "while the incorrectly classified points will get labeled "
-                                                 "as \'Outlier\' (red).")
+                                                 "as \'Outlier\' (red). It is recommended to view the labels with the"
+                                                 " SemanticKITTI labeling tool. ")
     parser.add_argument(
       '--predictions', '-p',
       type=str,

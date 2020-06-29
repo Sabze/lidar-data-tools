@@ -78,7 +78,10 @@ def downsample_files(laserscan_dict: dict, output: str, overwrite: bool, sequent
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Vertically downsample the SemanticKITTI data.")
+    parser = argparse.ArgumentParser(description="Downsample the vertical resolution in the SemanticKITTI data (from 64"
+                                                 " laser channels to 16 laser channels), by copying "
+                                                 "the points from every fourth laser channel and their labels to the "
+                                                 "output directory.")
     parser.add_argument(
       '--dataset', '-d',
       type=str,
@@ -95,7 +98,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--sequential',
         action='store_true',
-        help='Specify if you do not want to run in parallel.'
+        help='Specify if you do not don not want to run in parallel.'
     )
 
     parser.add_argument(
