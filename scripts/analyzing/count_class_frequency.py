@@ -7,7 +7,7 @@ from common.script_tools import NumberDict
 
 SEQUENTIAL_FEEDBACK = 500
 SPLITS = ["train", "valid", "test", "all"]
-CONFIG_DEFAULT = "../../config/labels/uav-custom.yaml"
+CONFIG_DEFAULT = "../../config/uav-custom.yaml"
 # def get_mapped_dict(freq_dict, num_labels, learning_map):
 #     mapped_dict = {}
 #     for label, count in freq_dict.items():
